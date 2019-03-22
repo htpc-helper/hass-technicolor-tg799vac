@@ -6,6 +6,7 @@ import voluptuous as vol
 import sys, re, datetime, time
 
 import requests
+import re
 from bs4 import BeautifulSoup
 
 from homeassistant.components.sensor import DOMAIN, PLATFORM_SCHEMA
@@ -122,8 +123,8 @@ class ModemData(object):
         self.__soup = None
 
     def __connect(self):
-        """ Authenticates with the modem. 
-        Returns a session on success or throws an exception 
+        """ Authenticates with the modem.
+        Returns a session on success or throws an exception
         """
         session = requests.Session()
         return session
@@ -182,7 +183,7 @@ class ModemData(object):
         return (float(t.replace(unit,'').strip()) for t in updown)
 
     def __fetch_line_attenuation(self):
-        """ Special case since VDSL has 3 values each for up/down 
+        """ Special case since VDSL has 3 values each for up/down
             eg "22.5, 64.9, 89.4 dB"
             (measuring attenuation in 3 different frequency bands?)
             we construct {up,down}_attenuation{1,2,3}
@@ -200,7 +201,7 @@ class ModemData(object):
     def __fetch_uptime(self, name):
         """ Returns uptime in seconds """
         uptime = self.__fetch_string(name)
-        uptime = [int(s) for s in uptime.split() if s.isdigit()]
+        uptime = [int(s) for s in re.findall(r'\b\d+', uptime)]
         ftr = [86400,3600,60,1]
         uptime = sum([a*b for a,b in zip(ftr[-len(uptime):], uptime)])
         return uptime
