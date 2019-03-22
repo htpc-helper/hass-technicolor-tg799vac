@@ -14,7 +14,7 @@ import homeassistant.helpers.config_validation as cv
 from homeassistant.helpers.entity import Entity
 from homeassistant.exceptions import PlatformNotReady
 from homeassistant.util import Throttle
-from homeassistant.helpers.restore_state import async_get_last_state
+from homeassistant.helpers.restore_state import RestoreEntity
 
 REQUIREMENTS = ['beautifulsoup4==4.6.0', 'requests==2.18.4']
 
@@ -72,7 +72,7 @@ def setup_platform(hass, config, add_devices, discovery_info=None):
         dev.append(TechnicolorModemSensor(modem, sensor))
     add_devices(dev, True)
 
-class TechnicolorModemSensor(Entity):
+class TechnicolorModemSensor(RestoreEntity):
     """Representation of a Technicolor Modem sensor."""
 
     def __init__(self, modem, sensor):
@@ -106,7 +106,7 @@ class TechnicolorModemSensor(Entity):
 
     async def async_added_to_hass(self):
         """Handle all entity which are about to be added."""
-        state = await async_get_last_state(self.hass, self.entity_id)
+        state = await self.async_get_last_state()
         if not state:
             return
         self._state = state.state
